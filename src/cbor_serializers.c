@@ -110,6 +110,27 @@ size_t cbor_serialize_array(const cbor_item_t * item, unsigned char * buffer, si
 size_t cbor_serialize_map(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
 {
 	assert(cbor_isa_map(item));
+        size_t size = cbor_map_size(item), written = 0;
+        struct cbor_pair * handle_pair = cbor_map_handle(item);
+        if (cbor_map_is_definite(item)) {
+                written = cbor_encode_map_start(size, buffer, buffer_size);
+        } else {
+                assert(cbor_map_is_indefinite(item));
+                written = cbor_encode_indef_map_start(buffer, buffer_size);
+        }
+ 
+        for (size_t i = 0; i < size; i++) {
+                written += cbor_serialize(handle_pair->key,
+                                          buffer + written,
+                                          buffer_size - written);
+                written += cbor_serialize(handle_pair->value,
+                                          buffer + written,
+                                          buffer_size - written);
+                handle_pair++;
+        }
+        
+        return written;
+        
 }
 
 size_t cbor_serialize_tag(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
