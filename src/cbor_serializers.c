@@ -3,6 +3,7 @@
 #include "magic.h"
 #include <assert.h>
 #include <string.h>
+#include <stdbool.h>
 
 size_t cbor_serialize(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
 {
@@ -112,11 +113,13 @@ size_t cbor_serialize_map(const cbor_item_t * item, unsigned char * buffer, size
 	assert(cbor_isa_map(item));
         size_t size = cbor_map_size(item), written = 0;
         struct cbor_pair * handle_pair = cbor_map_handle(item);
+        bool indef_flag = false;
         if (cbor_map_is_definite(item)) {
                 written = cbor_encode_map_start(size, buffer, buffer_size);
         } else {
                 assert(cbor_map_is_indefinite(item));
                 written = cbor_encode_indef_map_start(buffer, buffer_size);
+                indef_flag = true;
         }
  
         for (size_t i = 0; i < size; i++) {
@@ -128,7 +131,8 @@ size_t cbor_serialize_map(const cbor_item_t * item, unsigned char * buffer, size
                                           buffer_size - written);
                 handle_pair++;
         }
-        
+        if (indef_flag)
+                written += cbor_encode_break(buffer + written, buffer_size - written);
         return written;
         
 }
