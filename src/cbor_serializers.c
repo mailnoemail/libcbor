@@ -57,24 +57,30 @@ size_t cbor_serialize_negint(const cbor_item_t * item, unsigned char * buffer, s
 	}
 }
 
-size_t cbor_serialize_bytestring(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize_bytestring(const cbor_item_t * item,
+                                 unsigned char * buffer, size_t buffer_size)
 {
 	assert(cbor_isa_bytestring(item));
 	if (cbor_bytestring_is_definite(item)) {
 		size_t length = cbor_bytestring_length(item);
-		size_t written = cbor_encode_bytestring_start(length, buffer, buffer_size);
+		size_t written = cbor_encode_bytestring_start(length, buffer,
+                                                              buffer_size);
 		if (written && (buffer_size - written >= length)) {
-			memcpy(buffer + written, cbor_bytestring_handle(item), length);
+			memcpy(buffer + written, cbor_bytestring_handle(item),
+                               length);
 			return written + length;
 		} else
 			return 0;
 	} else {
 		size_t chunk_count = cbor_bytestring_chunk_count(item);
-		size_t written = cbor_encode_indef_bytestring_start(buffer, buffer_size);
+		size_t written = cbor_encode_indef_bytestring_start(buffer,
+                                                                  buffer_size);
 		// TODO stop this earlier if a chunk failed
 		cbor_item_t ** chunks = cbor_bytestring_chunks_handle(item);
 		for (size_t i = 0; i < chunk_count; i++) {
-			written += cbor_serialize_bytestring(chunks[i], buffer, buffer_size - written);
+			written += cbor_serialize_bytestring(chunks[i],
+                                                         buffer,
+                                                         buffer_size - written);
 		}
 		written += cbor_encode_break(buffer, buffer_size - written);
 		return written;
@@ -84,6 +90,31 @@ size_t cbor_serialize_bytestring(const cbor_item_t * item, unsigned char * buffe
 size_t cbor_serialize_string(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
 {
 	assert(cbor_isa_string(item));
+        if (cbor_string_is_definite(item)) {
+                size_t length = cbor_string_length(item);
+                size_t written = cbor_encode_string_start(length, buffer,
+                                                              buffer_size);
+                if (written && (buffer_size - written >= length)) {
+                        memcpy(buffer + written, cbor_string_handle(item),
+                               length);
+                        return written + length;
+                } else
+                        return 0;
+        } else {
+                size_t chunk_count = cbor_string_chunk_count(item);
+                size_t written = cbor_encode_indef_string_start(buffer,
+                                                                  buffer_size);
+                // TODO stop this earlier if a chunk failed
+                cbor_item_t ** chunks = cbor_string_chunks_handle(item);
+                for (size_t i = 0; i < chunk_count; i++) {
+                        written += cbor_serialize_string(chunks[i],
+                                                         buffer,
+                                                         buffer_size - written);
+                }
+                written += cbor_encode_break(buffer, buffer_size - written);
+                return written;
+        }
+
 }
 
 size_t cbor_serialize_array(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
@@ -137,9 +168,15 @@ size_t cbor_serialize_map(const cbor_item_t * item, unsigned char * buffer, size
         
 }
 
-size_t cbor_serialize_tag(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize_tag(const cbor_item_t * item, unsigned char * buffer,
+                          size_t buffer_size)
 {
 	assert(cbor_isa_tag(item));
+        size_t written = 0;
+        written = cbor_encode_tag(cbor_tag_value(item), buffer, buffer_size);
+        written += cbor_serialize(cbor_tag_item(item), buffer + written,
+                                  buffer_size - written);
+        return written;
 }
 
 size_t cbor_serialize_float_ctrl(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
