@@ -5,7 +5,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-size_t cbor_serialize(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize(const cbor_item_t * item, unsigned char * buffer,
+                      size_t buffer_size)
 {
 	switch (cbor_typeof(item)) {
 	case CBOR_TYPE_UINT:
@@ -27,33 +28,43 @@ size_t cbor_serialize(const cbor_item_t * item, unsigned char * buffer, size_t b
 	}
 }
 
-size_t cbor_serialize_uint(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize_uint(const cbor_item_t * item, unsigned char * buffer,
+                           size_t buffer_size)
 {
 	assert(cbor_isa_uint(item));
 	switch (cbor_int_get_width(item)) {
 	case CBOR_INT_8:
-		return cbor_encode_uint8(cbor_get_uint8(item), buffer, buffer_size);
+		return cbor_encode_uint8(cbor_get_uint8(item), buffer,
+                                         buffer_size);
 	case CBOR_INT_16:
-		return cbor_encode_uint16(cbor_get_uint16(item), buffer, buffer_size);
+		return cbor_encode_uint16(cbor_get_uint16(item), buffer,
+                                          buffer_size);
 	case CBOR_INT_32:
-		return cbor_encode_uint32(cbor_get_uint32(item), buffer, buffer_size);
+		return cbor_encode_uint32(cbor_get_uint32(item), buffer,
+                                          buffer_size);
 	case CBOR_INT_64:
-		return cbor_encode_uint64(cbor_get_uint64(item), buffer, buffer_size);
+		return cbor_encode_uint64(cbor_get_uint64(item), buffer,
+                                          buffer_size);
 	}
 }
 
-size_t cbor_serialize_negint(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize_negint(const cbor_item_t * item, unsigned char * buffer,
+                             size_t buffer_size)
 {
 	assert(cbor_isa_negint(item));
 	switch (cbor_int_get_width(item)) {
 	case CBOR_INT_8:
-		return cbor_encode_negint8(cbor_get_uint8(item), buffer, buffer_size);
+		return cbor_encode_negint8(cbor_get_uint8(item), buffer,
+                                           buffer_size);
 	case CBOR_INT_16:
-		return cbor_encode_negint16(cbor_get_uint16(item), buffer, buffer_size);
+		return cbor_encode_negint16(cbor_get_uint16(item), buffer,
+                                            buffer_size);
 	case CBOR_INT_32:
-		return cbor_encode_negint32(cbor_get_uint32(item), buffer, buffer_size);
+		return cbor_encode_negint32(cbor_get_uint32(item), buffer,
+                                            buffer_size);
 	case CBOR_INT_64:
-		return cbor_encode_negint64(cbor_get_uint64(item), buffer, buffer_size);
+		return cbor_encode_negint64(cbor_get_uint64(item), buffer,
+                                            buffer_size);
 	}
 }
 
@@ -87,7 +98,8 @@ size_t cbor_serialize_bytestring(const cbor_item_t * item,
 	}
 }
 
-size_t cbor_serialize_string(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize_string(const cbor_item_t * item, unsigned char * buffer,
+                             size_t buffer_size)
 {
 	assert(cbor_isa_string(item));
         if (cbor_string_is_definite(item)) {
@@ -117,7 +129,8 @@ size_t cbor_serialize_string(const cbor_item_t * item, unsigned char * buffer, s
 
 }
 
-size_t cbor_serialize_array(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize_array(const cbor_item_t * item, unsigned char * buffer,
+                            size_t buffer_size)
 {
 	assert(cbor_isa_array(item));
 	size_t size = cbor_array_size(item),
@@ -134,12 +147,14 @@ size_t cbor_serialize_array(const cbor_item_t * item, unsigned char * buffer, si
 
 	for (size_t i = 0; i < size; i++) {
 		// TODO check for failure
-		written += cbor_serialize(*(handle++), buffer + written, buffer_size - written);
+		written += cbor_serialize(*(handle++), buffer + written,
+                                          buffer_size - written);
 	}
 	return written;
 }
 
-size_t cbor_serialize_map(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize_map(const cbor_item_t * item, unsigned char * buffer,
+                          size_t buffer_size)
 {
 	assert(cbor_isa_map(item));
         size_t size = cbor_map_size(item), written = 0;
@@ -163,7 +178,8 @@ size_t cbor_serialize_map(const cbor_item_t * item, unsigned char * buffer, size
                 handle_pair++;
         }
         if (indef_flag)
-                written += cbor_encode_break(buffer + written, buffer_size - written);
+                written += cbor_encode_break(buffer + written,
+                                             buffer_size - written);
         return written;
         
 }
@@ -179,7 +195,8 @@ size_t cbor_serialize_tag(const cbor_item_t * item, unsigned char * buffer,
         return written;
 }
 
-size_t cbor_serialize_float_ctrl(const cbor_item_t * item, unsigned char * buffer, size_t buffer_size)
+size_t cbor_serialize_float_ctrl(const cbor_item_t * item,
+                                 unsigned char * buffer, size_t buffer_size)
 {
 	assert(cbor_isa_float_ctrl(item));
         if (cbor_float_ctrl_is_ctrl(item))
