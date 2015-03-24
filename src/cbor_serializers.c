@@ -200,20 +200,6 @@ size_t cbor_serialize_float_ctrl(const cbor_item_t * item,
 {
 	assert(cbor_isa_float_ctrl(item));
         if (cbor_float_ctrl_is_ctrl(item))
-                switch (cbor_float_get_width(item)) {
-               // case CBOR_FLOAT_0:
-               //         return encode
-                case CBOR_FLOAT_16:
-                        return cbor_encode_half(cbor_float_get_float2(item),
-                                                buffer, buffer_size);
-                case CBOR_FLOAT_32:
-                        return cbor_encode_float(cbor_float_get_float4(item),
-                                                 buffer, buffer_size);
-                case CBOR_FLOAT_64:
-                        return cbor_encode_double(cbor_float_get_float8(item),
-                                                  buffer, buffer_size);
-                }
-        else 
                 switch (cbor_ctrl_code(item)) {
                 case CBOR_CTRL_FALSE:
                 case CBOR_CTRL_TRUE:
@@ -223,6 +209,20 @@ size_t cbor_serialize_float_ctrl(const cbor_item_t * item,
                         return cbor_encode_null(buffer, buffer_size);
                 case CBOR_CTRL_UNDEF:
                         return cbor_encode_undef(buffer, buffer_size);
+                }
+        else
+                switch (cbor_float_get_width(item)) {
+                // case CBOR_FLOAT_0:
+                //         return encode
+                case CBOR_FLOAT_16:
+                        return cbor_encode_half(cbor_float_get_float2(item),
+                                                buffer, buffer_size);
+                case CBOR_FLOAT_32:
+                        return cbor_encode_float(cbor_float_get_float4(item),
+                                                 buffer, buffer_size);
+                case CBOR_FLOAT_64:
+                        return cbor_encode_double(cbor_float_get_float8(item),
+                                                  buffer, buffer_size);
                 }
 } 
 
